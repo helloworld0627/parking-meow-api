@@ -6,6 +6,8 @@ class CreateParkingRates < ActiveRecord::Migration
       t.decimal :price
       t.string :description
 
+      t.references :parking_lot, index: true, foreign_key: true
+
       t.timestamps null: false
     end
   end
