@@ -12,6 +12,8 @@ gem 'spring', :group => :development
 ### My gem ###
 ##############
 
+gem 'rest-client'
+
 gem 'pg'
 # gem 'sqlite3'
 
