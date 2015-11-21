@@ -1,4 +1,5 @@
 class ApiRequestSchedule < ActiveRecord::Base
+	enum status: [ :new, :run, :succeed, :fail ]
 
 	@@api_path = 'https://data.seattle.gov/resource/3neb-8edu.json'
 
@@ -39,9 +40,10 @@ class ApiRequestSchedule < ActiveRecord::Base
 		        shape = item["shape"]
   		        p.longtitude= shape["longitude"]
    		        p.latitude = shape["latitude"]
-
-   		        puts p.to_json
+   		        #puts p.to_json
 			end
+
+			rte = 
 		end
 	end	
 end
