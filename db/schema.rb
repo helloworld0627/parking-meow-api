@@ -17,8 +17,8 @@ ActiveRecord::Schema.define(version: 20151118064552) do
   enable_extension "plpgsql"
 
   create_table "api_request_schedules", force: :cascade do |t|
+    t.string   "file_path"
     t.string   "request_url",             null: false
-    t.string   "file_path",               null: false
     t.integer  "status",      default: 0
     t.datetime "created_at",              null: false
     t.datetime "updated_at",              null: false
@@ -45,17 +45,17 @@ ActiveRecord::Schema.define(version: 20151118064552) do
     t.string   "op_phone"
     t.string   "op_phone2"
     t.string   "op_web"
-    t.integer  "payment_type",                                   default: 0
-    t.integer  "other_type",                                     default: 0
+    t.integer  "payment_type",                                  default: 0
+    t.integer  "other_type",                                    default: 0
     t.string   "webname"
     t.integer  "regionid"
-    t.integer  "outofserv_type",                                 default: 0
+    t.integer  "outofserv_type",                                default: 0
     t.integer  "vacant"
     t.string   "signid"
-    t.decimal  "longtitude",           precision: 15, scale: 13
-    t.decimal  "latitude",             precision: 15, scale: 13
-    t.datetime "created_at",                                                 null: false
-    t.datetime "updated_at",                                                 null: false
+    t.decimal  "longtitude",           precision: 12, scale: 9
+    t.decimal  "latitude",             precision: 12, scale: 9
+    t.datetime "created_at",                                                null: false
+    t.datetime "updated_at",                                                null: false
   end
 
   create_table "parking_rates", force: :cascade do |t|
