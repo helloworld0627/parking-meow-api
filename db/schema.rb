@@ -46,10 +46,10 @@ ActiveRecord::Schema.define(version: 20151118064552) do
     t.string   "op_phone2"
     t.string   "op_web"
     t.integer  "payment_type",                                   default: 0
-    t.integer  "other",                                          default: 0
+    t.integer  "other_type",                                     default: 0
     t.string   "webname"
     t.integer  "regionid"
-    t.integer  "outofserv",                                      default: 0
+    t.integer  "outofserv_type",                                 default: 0
     t.integer  "vacant"
     t.string   "signid"
     t.decimal  "longtitude",           precision: 15, scale: 13
