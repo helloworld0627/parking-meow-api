@@ -13,10 +13,10 @@ class CreateParkingLots < ActiveRecord::Migration
       t.string :op_phone2
       t.string :op_web
       t.column :payment_type, :integer, default: 0
-      t.column :other, :integer, default: 0 # Y/N text
+      t.column :other_type, :integer, default: 0 # Y/N text
       t.string :webname
       t.integer :regionid
-      t.column :outofserv, :integer, default: 0 #Y/N text
+      t.column :outofserv_type, :integer, default: 0 #Y/N text
       t.integer :vacant
       t.string :signid
       t.decimal :longtitude, :precision => 15, :scale => 13
