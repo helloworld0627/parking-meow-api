@@ -6,13 +6,15 @@ class ParkingLotsController < ApplicationController
   def index
     @parking_lots = ParkingLot.all
 
-    render json: @parking_lots
+    response = @parking_lots.as_json(include: [:parkingRates, :parkingBusinessHours])
+    render json: response
   end
 
   # GET /parking_lots/1
   # GET /parking_lots/1.json
   def show
-    render json: @parking_lot
+    response = @parking_lot.as_json(include: [:parkingRates, :parkingBusinessHours])
+    render json: response
   end
 
   # POST /parking_lots
