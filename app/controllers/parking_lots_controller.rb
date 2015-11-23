@@ -4,7 +4,40 @@ class ParkingLotsController < ApplicationController
   # GET /parking_lots
   # GET /parking_lots.json
   def index
+    # query with parameter 'rates'
+    rate_query = "false"
+    ParkingRate.rate_types.each do |type_name, type_val|
+      if params.key? type_name
+        price = params[type_name]
+        rate_query += " or (rate_type=#{type_val} and price <=#{price} and price > 0)"
+      end
+    end
+    # puts rate_query
+    # rate_result = ParkingRate.where(rate_query) unless rate_query.eql? "false"
+
+    hour_query = "false"
+    ParkingBusinessHour.hour_types.each do |type_name, type_val|
+      if params.key? type_name
+        hour_query += " or hour_type=#{type_val}"
+      end
+    end
+    # puts hour_query
+    # hour_result = ParkingBusinessHour.where(hour_query) unless hour_query.eql? "false"
+
+    loc_query = nil
+    if params.key? "longtitude" and params.key? "latitude"
+      longtitude_val = params["longtitude"]
+      latitude_val = params["latitude"]
+      # TODO: fix search functionality
+      #degree_per_mile_approx = 0.05 
+      #loc_query = "Pow(longtitude - #{longtitude_val},2) + Pow(latitude - #{latitude_val},2) < #{degree_per_mile_approx}"
+    end
+
     @parking_lots = ParkingLot.all
+    @parking_lots = @parking_lots.joins(:parkingRates).where(rate_query) unless rate_query.eql? "false"
+    @parking_lots = @parking_lots.joins(:parkingBusinessHours).where(hour_query) unless hour_query.eql? "false"
+    @parking_lots = @parking_lots.where(loc_query) unless loc_query.nil?
+    @parking_lots = @parking_lots.distinct(:id)
 
     response = @parking_lots.as_json(include: [:parkingRates, :parkingBusinessHours])
     render json: response
