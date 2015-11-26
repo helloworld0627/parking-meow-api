@@ -24,20 +24,25 @@ class ParkingLotsController < ApplicationController
     # puts hour_query
     # hour_result = ParkingBusinessHour.where(hour_query) unless hour_query.eql? "false"
 
-    loc_query = nil
-    if params.key? "longtitude" and params.key? "latitude"
-      longtitude_val = params["longtitude"]
-      latitude_val = params["latitude"]
-      # TODO: fix search functionality
-      #degree_per_mile_approx = 0.05 
-      #loc_query = "Pow(longtitude - #{longtitude_val},2) + Pow(latitude - #{latitude_val},2) < #{degree_per_mile_approx}"
-    end
-
     @parking_lots = ParkingLot.all
     @parking_lots = @parking_lots.joins(:parkingRates).where(rate_query) unless rate_query.eql? "false"
     @parking_lots = @parking_lots.joins(:parkingBusinessHours).where(hour_query) unless hour_query.eql? "false"
-    @parking_lots = @parking_lots.where(loc_query) unless loc_query.nil?
     @parking_lots = @parking_lots.distinct(:id)
+
+    if params.key? "longtitude" and params.key? "latitude"
+      ids = []
+      @parking_lots.each do |p|
+        longtitude_val = BigDecimal.new(params["longtitude"])
+        latitude_val = BigDecimal.new(params["latitude"])
+        loc1 = [latitude_val, longtitude_val]
+        loc2 = [p.latitude, p.longtitude]
+        d = distance loc1, loc2
+        if d <= 1
+          ids.append(p.id)
+        end
+      end
+      @parking_lots = @parking_lots.find(ids)
+    end
 
     response = @parking_lots.as_json(include: [:parkingRates, :parkingBusinessHours])
     render json: response
@@ -90,5 +95,19 @@ class ParkingLotsController < ApplicationController
 
     def parking_lot_params
       params[:parking_lot]
+    end
+
+    def distance loc1, loc2
+      rad_per_deg = Math::PI/180  # PI / 180
+      rkm = 6371                  # Earth radius in kilometers
+      rmile = rkm / 1.6             # Radius in miles
+      dlat_rad = (loc2[0]-loc1[0]) * rad_per_deg  # Delta, converted to rad
+      dlon_rad = (loc2[1]-loc1[1]) * rad_per_deg
+
+      lat1_rad, lon1_rad = loc1.map {|i| i * rad_per_deg }
+      lat2_rad, lon2_rad = loc2.map {|i| i * rad_per_deg }
+      a = Math.sin(dlat_rad/2)**2 + Math.cos(lat1_rad) * Math.cos(lat2_rad) * Math.sin(dlon_rad/2)**2
+      c = 2 * Math::atan2(Math::sqrt(a), Math::sqrt(1-a))
+      rmile * c # Delta in miles
     end
 end
