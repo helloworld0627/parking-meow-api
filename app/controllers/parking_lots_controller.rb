@@ -7,23 +7,22 @@ class ParkingLotsController < ApplicationController
     # query with parameter 'rates'
     rate_query = "false"
     ParkingRate.rate_types.each do |type_name, type_val|
-      if params.key? type_name
-        price = params[type_name]
-        rate_query += " or (rate_type=#{type_val} and price <=#{price} and price > 0)"
-      end
+      # if price is not specified, include nil price in the result
+      price_query = (params.key? type_name) ? "(price <=#{params[type_name]} and price > 0)" : "(price ISNULL or price > 0)"
+      rate_query += " or (rate_type=#{type_val} and #{price_query})" 
     end
     # puts rate_query
-    # rate_result = ParkingRate.where(rate_query) unless rate_query.eql? "false"
 
+    # query business hour is opened
     hour_query = "false"
     ParkingBusinessHour.hour_types.each do |type_name, type_val|
       if params.key? type_name
-        hour_query += " or hour_type=#{type_val}"
+        from_to_query = (params[type_name].eql? 'true') ? "NOTNULL" : "ISNULL" 
+        hour_query += " or (hour_type=#{type_val} and from_to #{from_to_query})"
       end
     end
-    # puts hour_query
+    
     # hour_result = ParkingBusinessHour.where(hour_query) unless hour_query.eql? "false"
-
     @parking_lots = ParkingLot.all
     @parking_lots = @parking_lots.joins(:parkingRates).where(rate_query) unless rate_query.eql? "false"
     @parking_lots = @parking_lots.joins(:parkingBusinessHours).where(hour_query) unless hour_query.eql? "false"
