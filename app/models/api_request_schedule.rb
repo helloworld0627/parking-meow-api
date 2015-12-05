@@ -96,25 +96,25 @@ class ApiRequestSchedule < ActiveRecord::Base
 			# enum rate_type are json attribute name
 			ParkingRate.rate_types.each do |k,v|
 				# puts k
-				if item.key? k
-					rate = parkingLot.parkingRates.new do |r|
-						r.rate_type = k
-						r.price = item[k]
-						# puts r.to_json
-					end
+				#if item.key? k
+				rate = parkingLot.parkingRates.new do |r|
+					r.rate_type = k
+					r.price = item[k] if item.key? k
+					# puts r.to_json
 				end
+				#end
 			end
 
 			# enum hour_type are json attribute name
 			ParkingBusinessHour.hour_types.each do |k,v|
 				# puts k
-				if item.key? k
-					biz_hour = parkingLot.parkingBusinessHours.new do |b|
-						b.hour_type = k
-						b.from_to = item[k]
-						# puts b.to_json
-					end
+				#if item.key? k
+				biz_hour = parkingLot.parkingBusinessHours.new do |b|
+					b.hour_type = k
+					b.from_to = item[k] if item.key? k
+					# puts b.to_json
 				end
+				#end
 			end
 
 			results.append parkingLot
