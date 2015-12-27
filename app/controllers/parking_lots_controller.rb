@@ -4,30 +4,19 @@ class ParkingLotsController < ApplicationController
   # GET /parking_lots
   # GET /parking_lots.json
   def index
-    # query with parameter 'rates'
-    rate_query = "false"
-    ParkingRate.rate_types.each do |type_name, type_val|
-      # if price is not specified, include nil price in the result
-      price_query = (params.key? type_name) ? "(price <=#{params[type_name]} and price > 0)" : "(price ISNULL or price > 0)"
-      rate_query += " or (rate_type=#{type_val} and #{price_query})" 
-    end
-    # puts rate_query
 
-    # query business hour is opened
-    hour_query = "false"
-    ParkingBusinessHour.hour_types.each do |type_name, type_val|
-      if params.key? type_name
-        from_to_query = (params[type_name].eql? 'true') ? "NOTNULL" : "ISNULL" 
-        hour_query += " or (hour_type=#{type_val} and from_to #{from_to_query})"
-      end
-    end
-    
-    # hour_result = ParkingBusinessHour.where(hour_query) unless hour_query.eql? "false"
     @parking_lots = ParkingLot.all
-    @parking_lots = @parking_lots.joins(:parkingRates).where(rate_query) unless rate_query.eql? "false"
-    @parking_lots = @parking_lots.joins(:parkingBusinessHours).where(hour_query) unless hour_query.eql? "false"
-    @parking_lots = @parking_lots.distinct(:id)
+    # rate query
+    rate_query = rate_query()
+    puts rate_query
+    @parking_lots = @parking_lots.joins(:parkingRates).where(rate_query) unless rate_query.empty?
+    # hour query
+    hour_query = hour_query()
+    puts hour_query
+    @parking_lots = @parking_lots.joins(:parkingBusinessHours).where(hour_query) unless hour_query.empty?
 
+    # filter by lat long
+    @parking_lots = @parking_lots.distinct(:id)
     if params.key? "longtitude" and params.key? "latitude"
       ids = []
       @parking_lots.each do |p|
@@ -94,6 +83,31 @@ class ParkingLotsController < ApplicationController
 
     def parking_lot_params
       params[:parking_lot]
+    end
+
+    def rate_query
+      # query with parameter 'rates'
+      rate_criteria = []
+      ParkingRate.rate_types.each do |type_name, type_val|
+        if params.key? type_name
+          stmt = "(rate_type=#{type_val} and price <= #{params[type_name]})"
+          rate_criteria.append stmt
+        end
+      end
+      rate_criteria.join "and"
+    end
+
+    def hour_query
+      # query business hour is opened
+      hour_criteria = []
+      ParkingBusinessHour.hour_types.each do |type_name, type_val|
+        if params.key? type_name
+          from_to_val = (params[type_name].eql? 'true') ? "NOTNULL" : "ISNULL"
+          stmt = "(hour_type = #{type_val} and from_to #{from_to_val})"
+          hour_criteria.append stmt
+        end
+      end
+      hour_criteria.join "and"
     end
 
     def distance loc1, loc2
