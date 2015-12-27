@@ -20,3 +20,4 @@ Retrieve parking where opens in given days
 # Heroku
 - First time DB migration: heroku run rake db:migrate
 - Run API Request Scheduler: heroku run rails runner ApiRequestSchedule.etl
+- To reset the DB: heroku pg:reset DATABASE
